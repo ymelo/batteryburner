@@ -1,12 +1,10 @@
 package com.ythat.batteryburner
 
-import android.R
 import android.os.Bundle
 import android.util.Log
-import android.widget.ProgressBar
-import android.widget.ToggleButton
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -20,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.ythat.batteryburner.ui.theme.BatteryBurnerTheme
 
 class MainActivity : ComponentActivity() {
+    val vm: DrainageViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -29,7 +28,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+                    Greeting("Android", vm)
                 }
             }
         }
@@ -37,15 +36,15 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
+fun Greeting(name: String, viewModel: DrainageViewModel, modifier: Modifier = Modifier) {
     var disclaimerDismissed by remember { mutableStateOf(false) }
-    var initialCPULoad by remember { mutableStateOf(4) }
+    var initialCPULoad by rememberSaveable { mutableStateOf(0f) }
     var screenKeepAwake by rememberSaveable { mutableStateOf(false) }
     Column(modifier.padding(8.dp)) {
         if(!disclaimerDismissed) {
-            DisclaimerScreen(onDisclaimerDismiss = { disclaimerDismissed = !disclaimerDismissed})
+            DisclaimerScreen(onDisclaimerDismiss = { disclaimerDismissed = !disclaimerDismissed}, modifier)
         }
-
+        Spacer(modifier = modifier.padding(16.dp))
         Button(onClick = { /*TODO*/ }) {
             Text(text = "Flashlight")
             Image(
@@ -57,34 +56,48 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
             )
         }
 
-        TextSlider(text = "Keep screen ON", screenKeepAwake, onCheckedChange = { screenKeepAwake = it})
+        TextSlider(text = "Keep screen ON", screenKeepAwake, onCheckedChange = {
+                screenKeepAwake = it
+            }
+        )
         TextSlider(text = "test", true, onCheckedChange = {})
-        SyntheticLoad(name = "CPU", initialValue = initialCPULoad, maxValue = 8, onValueChanged =
+        val info = HardwareStatisticsRepository().hardwareInfo()
+        SyntheticLoad(name = "CPU", initialValue = initialCPULoad, minValue = 0, maxValue = 8, onValueChanged =
             {
                 Log.d("cpu", "$initialCPULoad")
-                initialCPULoad = it.toInt()
-            }
+                initialCPULoad = it
+                viewModel.makeCpuBurn(initialCPULoad.toInt())
+            },
+            modifier
+
         )
 
     }
 }
 
 @Composable
-fun SyntheticLoad(name: String, initialValue: Int, maxValue: Int, onValueChanged: (Float) -> Unit, modifier: Modifier = Modifier) {
-    Row (
-        modifier
-            .fillMaxWidth()
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ){
-        Text(text = name, modifier.padding(end = 8.dp))
-        Text(text = initialValue.toString())
-        Slider(value = initialValue.toFloat(),
-            onValueChange = onValueChanged,
-            valueRange = 0.0f.rangeTo(maxValue.toFloat()),
-            steps = 1,
-        )
+fun SyntheticLoad(name: String, initialValue: Float, minValue: Int, maxValue: Int, onValueChanged: (Float) -> Unit, modifier: Modifier = Modifier) {
+    Surface(shape = MaterialTheme.shapes.small, modifier = modifier) {
+        Column(modifier.padding(4.dp)) {
+            Text(text = name, modifier.padding(end = 8.dp))
+            Row (
+                modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+
+                Text(text = minValue.toString())
+                Text(text = maxValue.toString())
+            }
+
+            Slider(value = initialValue,
+                onValueChange = onValueChanged,
+                valueRange = 0.0f..maxValue.toFloat(),
+                steps = maxValue,
+            )
+        }
     }
 
 }
@@ -93,6 +106,6 @@ fun SyntheticLoad(name: String, initialValue: Int, maxValue: Int, onValueChanged
 @Composable
 fun DefaultPreview() {
     BatteryBurnerTheme {
-        Greeting("Android")
+        Greeting("Android", DrainageViewModel())
     }
 }
