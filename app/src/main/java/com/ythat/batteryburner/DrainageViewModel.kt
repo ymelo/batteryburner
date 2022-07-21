@@ -1,6 +1,8 @@
 package com.ythat.batteryburner
 
 import android.util.Log
+import android.view.WindowManager
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,11 +18,15 @@ class DrainageViewModel: ViewModel() {
     private val hardwareRepository = HardwareRepository()
     private var currentJob: Job? = null
 
-    val keepAwake: MutableLiveData<Boolean> by lazy {
+    private val keepAwake: MutableLiveData<Boolean> by lazy {
         MutableLiveData<Boolean>().also { it.value = false }
     }
 
     val cpuCores: Int = hardwareRepository.hardwareInfo().coreCount
+
+    fun keepAwake() : LiveData<Boolean> {
+        return keepAwake
+    }
 
     fun makeCpuBurn(concurrentThreads: Int = 0) {
         currentJob?.cancel()
@@ -32,7 +38,11 @@ class DrainageViewModel: ViewModel() {
         }
 
     }
-    private val singleDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+
+    fun keepAwake(awake: Boolean) {
+        keepAwake.value = awake
+    }
+
     private suspend fun burn() {
 
         withContext(Dispatchers.IO) {

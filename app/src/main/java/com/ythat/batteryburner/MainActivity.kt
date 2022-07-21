@@ -2,6 +2,7 @@ package com.ythat.batteryburner
 
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -34,6 +35,13 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        vm.keepAwake().observe(this) { keepAwake ->
+            if (keepAwake) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            } else {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
+        }
     }
 }
 
@@ -64,6 +72,7 @@ fun DrainScreen(name: String, viewModel: DrainageViewModel, modifier: Modifier =
 
         TextSlider(text = "Keep screen ON", screenKeepAwake, onCheckedChange = {
                 screenKeepAwake = it
+                viewModel.keepAwake(it)
             }
         )
 
