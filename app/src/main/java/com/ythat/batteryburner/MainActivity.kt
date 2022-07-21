@@ -16,11 +16,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ythat.batteryburner.ui.theme.BatteryBurnerTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
-    val vm: DrainageViewModel by viewModels()
+
+    private val vm: DrainageViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             BatteryBurnerTheme {
                 // A surface container using the 'background' color from the theme
@@ -61,8 +67,8 @@ fun Greeting(name: String, viewModel: DrainageViewModel, modifier: Modifier = Mo
             }
         )
         TextSlider(text = "test", true, onCheckedChange = {})
-        val info = HardwareStatisticsRepository().hardwareInfo()
-        SyntheticLoad(name = "CPU", initialValue = initialCPULoad, minValue = 0, maxValue = 8, onValueChanged =
+
+        SyntheticLoad(name = "CPU", initialValue = initialCPULoad, minValue = 0, maxValue = viewModel.cpuCores, onValueChanged =
             {
                 Log.d("cpu", "$initialCPULoad")
                 initialCPULoad = it

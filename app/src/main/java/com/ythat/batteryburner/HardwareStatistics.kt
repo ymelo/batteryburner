@@ -4,43 +4,41 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ythat.batteryburner.data.HardwareRepository
 import kotlinx.coroutines.*
+import java.util.concurrent.Executors
 import kotlin.math.pow
 
 
 data class HardwareStatistics(val cpuName: String, val coreCount: Int)
 
-class HardwareStatisticsRepository() {
-    private var processNames = listOf("/system/bin/cat", "/proc/cpuinfo")
-    fun hardwareInfo() : HardwareStatistics {
-        val processBuilder = ProcessBuilder(processNames)
-//        processBuilder.redirectOutput(ProcessBuilder.Redirect.PIPE)
-        return HardwareStatistics("Unknown", Runtime.getRuntime().availableProcessors())
-    }
-}
-
 class DrainageViewModel: ViewModel() {
+    private val hardwareRepository = HardwareRepository()
     private var currentJob: Job? = null
+
     val keepAwake: MutableLiveData<Boolean> by lazy {
         MutableLiveData<Boolean>().also { it.value = false }
     }
+
+    val cpuCores: Int = hardwareRepository.hardwareInfo().coreCount
 
     fun makeCpuBurn(concurrentThreads: Int = 0) {
         currentJob?.cancel()
         Log.d("job", "Current job $currentJob")
         if (concurrentThreads > 0) {
-            currentJob = viewModelScope.launch {
+            currentJob = viewModelScope.launch(CoroutineName("Yoplay")) {
                 burn()
             }
         }
 
     }
-
+    private val singleDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private suspend fun burn() {
+
         withContext(Dispatchers.IO) {
-            for(i in 0..100) {
-                ensureActive()
-                delay(100)
+            while(isActive) {
+//                delay(100)
+                val i = Math.random()
                 println("POWA ${i.toDouble().pow(i.toDouble())}")
 //                i.toDouble().pow(i.toDouble())
             }
