@@ -16,10 +16,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ythat.batteryburner.ui.theme.BatteryBurnerTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
 
@@ -34,7 +30,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android", vm)
+                    DrainScreen("Android", vm)
                 }
             }
         }
@@ -42,10 +38,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, viewModel: DrainageViewModel, modifier: Modifier = Modifier) {
+fun DrainScreen(name: String, viewModel: DrainageViewModel, modifier: Modifier = Modifier) {
+    // Whether the disclaimer has been dismissed during the current session
     var disclaimerDismissed by remember { mutableStateOf(false) }
+    // How many CPU cores (TBD, feature not implemented yet) to use when draining battery
     var initialCPULoad by rememberSaveable { mutableStateOf(0f) }
+    // State on whether to keep the screen awake or not
     var screenKeepAwake by rememberSaveable { mutableStateOf(false) }
+
     Column(modifier.padding(8.dp)) {
         if(!disclaimerDismissed) {
             DisclaimerScreen(onDisclaimerDismiss = { disclaimerDismissed = !disclaimerDismissed}, modifier)
@@ -66,6 +66,7 @@ fun Greeting(name: String, viewModel: DrainageViewModel, modifier: Modifier = Mo
                 screenKeepAwake = it
             }
         )
+
         TextSlider(text = "test", true, onCheckedChange = {})
 
         SyntheticLoad(name = "CPU", initialValue = initialCPULoad, minValue = 0, maxValue = viewModel.cpuCores, onValueChanged =
@@ -75,9 +76,7 @@ fun Greeting(name: String, viewModel: DrainageViewModel, modifier: Modifier = Mo
                 viewModel.makeCpuBurn(initialCPULoad.toInt())
             },
             modifier
-
         )
-
     }
 }
 
@@ -105,13 +104,12 @@ fun SyntheticLoad(name: String, initialValue: Float, minValue: Int, maxValue: In
             )
         }
     }
-
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     BatteryBurnerTheme {
-        Greeting("Android", DrainageViewModel())
+        DrainScreen("Android", DrainageViewModel())
     }
 }
