@@ -1,5 +1,6 @@
 package com.ythat.batteryburner.data
 
+import androidx.compose.ui.platform.LocalContext
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -7,7 +8,7 @@ import org.junit.Test
 
 internal class HardwareRepositoryTest {
     private val fakeDataSource = FakeHardwareSource()
-    private val sut = HardwareRepository(fakeDataSource)
+    private val sut = HardwareRepository(source = fakeDataSource)
     @Test
     fun `hardwareInfo with data source returns core count`() {
         fakeDataSource.coreCount = 0

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ythat.batteryburner.ui.theme.BatteryBurnerTheme
 
 class MainActivity : ComponentActivity() {
@@ -42,11 +43,12 @@ class MainActivity : ComponentActivity() {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }
         }
+        application
     }
 }
 
 @Composable
-fun DrainScreen(name: String, viewModel: DrainageViewModel, modifier: Modifier = Modifier) {
+fun DrainScreen(name: String, viewModel: DrainageViewModel = viewModel(), modifier: Modifier = Modifier) {
     // Whether the disclaimer has been dismissed during the current session
     var disclaimerDismissed by remember { mutableStateOf(false) }
     // How many CPU cores (TBD, feature not implemented yet) to use when draining battery
@@ -54,12 +56,17 @@ fun DrainScreen(name: String, viewModel: DrainageViewModel, modifier: Modifier =
     // State on whether to keep the screen awake or not
     var screenKeepAwake by rememberSaveable { mutableStateOf(false) }
 
+    var flashlightState by rememberSaveable { mutableStateOf(false) }
+
     Column(modifier.padding(8.dp)) {
         if(!disclaimerDismissed) {
             DisclaimerScreen(onDisclaimerDismiss = { disclaimerDismissed = !disclaimerDismissed}, modifier)
         }
         Spacer(modifier = modifier.padding(16.dp))
-        Button(onClick = { /*TODO*/ }) {
+        Button(onClick = {
+            flashlightState = !flashlightState
+            viewModel.flashlight(flashlightState)
+        }) {
             Text(text = "Flashlight")
             Image(
                 modifier = modifier
@@ -119,6 +126,7 @@ fun SyntheticLoad(name: String, initialValue: Float, minValue: Int, maxValue: In
 @Composable
 fun DefaultPreview() {
     BatteryBurnerTheme {
-        DrainScreen("Android", DrainageViewModel())
+
+        DrainScreen("Android")
     }
 }
