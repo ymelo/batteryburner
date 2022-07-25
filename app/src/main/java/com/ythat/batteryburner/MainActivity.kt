@@ -6,17 +6,19 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Slider
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ythat.batteryburner.ui.TestToggleButton
 import com.ythat.batteryburner.ui.theme.BatteryBurnerTheme
 
 class MainActivity : ComponentActivity() {
@@ -58,24 +60,18 @@ fun DrainScreen(name: String, viewModel: DrainageViewModel = viewModel(), modifi
 
     var flashlightState by rememberSaveable { mutableStateOf(false) }
 
+
     Column(modifier.padding(8.dp)) {
         if(!disclaimerDismissed) {
             DisclaimerScreen(onDisclaimerDismiss = { disclaimerDismissed = !disclaimerDismissed}, modifier)
         }
         Spacer(modifier = modifier.padding(16.dp))
-        Button(onClick = {
-            flashlightState = !flashlightState
+
+        val iconId = if (flashlightState)R.drawable.flashlight_on else R.drawable.flashlight_off
+        TestToggleButton(text = "test", iconId, flashlightState, onCheckedChange = { checked ->
+            flashlightState = checked
             viewModel.flashlight(flashlightState)
-        }) {
-            Text(text = "Flashlight")
-            Image(
-                modifier = modifier
-                    .size(56.dp)
-                    .align(Alignment.CenterVertically),
-                painter = painterResource(android.R.drawable.btn_star_big_on),
-                contentDescription = null
-            )
-        }
+        })
 
         TextSlider(text = "Keep screen ON", screenKeepAwake, onCheckedChange = {
                 screenKeepAwake = it
@@ -126,7 +122,6 @@ fun SyntheticLoad(name: String, initialValue: Float, minValue: Int, maxValue: In
 @Composable
 fun DefaultPreview() {
     BatteryBurnerTheme {
-
         DrainScreen("Android")
     }
 }
