@@ -1,7 +1,5 @@
 package com.ythat.batteryburner.ui
 
-import android.widget.Space
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -10,21 +8,20 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ythat.batteryburner.DrainScreen
 import com.ythat.batteryburner.R
 import com.ythat.batteryburner.ui.theme.BatteryBurnerTheme
-import com.ythat.batteryburner.ui.theme.Purple500
-import com.ythat.batteryburner.ui.theme.Teal200
 
 @Composable
 fun TestToggleButton(text: String, iconId: Int, checked: Boolean = false, onCheckedChange: (Boolean) -> Unit, modifier: Modifier = Modifier) {

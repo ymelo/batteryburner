@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -45,7 +46,6 @@ class MainActivity : ComponentActivity() {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }
         }
-        application
     }
 }
 
@@ -65,23 +65,22 @@ fun DrainScreen(name: String, viewModel: DrainageViewModel = viewModel(), modifi
         if(!disclaimerDismissed) {
             DisclaimerScreen(onDisclaimerDismiss = { disclaimerDismissed = !disclaimerDismissed}, modifier)
         }
+
         Spacer(modifier = modifier.padding(16.dp))
 
         val iconId = if (flashlightState)R.drawable.flashlight_on else R.drawable.flashlight_off
-        TestToggleButton(text = "test", iconId, flashlightState, onCheckedChange = { checked ->
+        TestToggleButton(text = stringResource(R.string.flashlight), iconId, flashlightState, onCheckedChange = { checked ->
             flashlightState = checked
             viewModel.flashlight(flashlightState)
         })
 
-        TextSlider(text = "Keep screen ON", screenKeepAwake, onCheckedChange = {
+        TextSlider(text = stringResource(R.string.keep_screen), screenKeepAwake, onCheckedChange = {
                 screenKeepAwake = it
                 viewModel.keepAwake(it)
             }
         )
 
-        TextSlider(text = "test", true, onCheckedChange = {})
-
-        SyntheticLoad(name = "CPU", initialValue = initialCPULoad, minValue = 0, maxValue = viewModel.cpuCores, onValueChanged =
+        SyntheticLoad(name = "# of Threads", initialValue = initialCPULoad, minValue = 0, maxValue = viewModel.cpuCores, onValueChanged =
             {
                 Log.d("cpu", "$initialCPULoad")
                 initialCPULoad = it
@@ -112,7 +111,7 @@ fun SyntheticLoad(name: String, initialValue: Float, minValue: Int, maxValue: In
             Slider(value = initialValue,
                 onValueChange = onValueChanged,
                 valueRange = 0.0f..maxValue.toFloat(),
-                steps = maxValue,
+                steps = (maxValue - 1),
             )
         }
     }
