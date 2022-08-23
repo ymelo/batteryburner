@@ -3,6 +3,7 @@ Drains the battery of a device - A developer oriented tool
 
 This tool is not intended for normal usage.
 This tool will heavily drain the battery of a device until stopped, or until the device shuts down.
+![BatteryBurner](docs/battery_burner1.png)
 
 # When to use this tool
 Almost never :).
